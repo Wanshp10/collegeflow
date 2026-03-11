@@ -36,12 +36,15 @@ export default function HODDashboard() {
   
   const [assignDeptForm, setADF] = useState({ userId: '', department: '' });
 
+  // ── DEFAULT TO HOD'S DEPARTMENT ──
   const [newSec, setNS] = useState<NewSec>({
-    name: '', subject: '', subjectCode: '', department: '',
+    name: '', subject: '', subjectCode: '', department: user?.hodDepartment || '',
     year: '', semester: '', assignToSelf: false,
   });
 
   // ── QR GENERATION STATE ──
+  const [qrSectionId, setQrSectionId] = useState('');
+  const [qrDuration, setQrDuration]   = useState(10);
   const [qrImage, setQrImage]         = useState<string | null>(null);
   const [sessionId, setSessionId]     = useState<string | null>(null);
   const [activeSession, setActive]    = useState(false);
@@ -84,9 +87,15 @@ export default function HODDashboard() {
   const createSec = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await API.post('/hod/sections', { ...newSec, year: newSec.year ? Number(newSec.year) : undefined, semester: newSec.semester ? Number(newSec.semester) : undefined });
+      await API.post('/hod/sections', { 
+        ...newSec, 
+        department: user?.hodDepartment || newSec.department, // Enforce department here too
+        year: newSec.year ? Number(newSec.year) : undefined, 
+        semester: newSec.semester ? Number(newSec.semester) : undefined 
+      });
       toast.success('Section created!');
-      setSSM(false); setNS({ name: '', subject: '', subjectCode: '', department: '', year: '', semester: '', assignToSelf: false });
+      setSSM(false); 
+      setNS({ name: '', subject: '', subjectCode: '', department: user?.hodDepartment || '', year: '', semester: '', assignToSelf: false });
       fetchSections(); fetchStats();
     } catch (err: any) { toast.error(err.response?.data?.message || 'Error'); }
   };
@@ -781,7 +790,12 @@ export default function HODDashboard() {
                 </div>
                 <div>
                   <label style={S.label}>Department</label>
-                  <input style={S.input} placeholder="Computer Science" value={newSec.department} onChange={e => setNS(f => ({ ...f, department: e.target.value }))} />
+                  <input 
+                    style={{ ...S.input, background: '#f1f5f9', color: '#64748b', cursor: 'not-allowed' }} 
+                    value={user?.hodDepartment || ''} 
+                    disabled 
+                    title="Automatically set to your department"
+                  />
                 </div>
                 <div>
                   <label style={S.label}>Year</label>
