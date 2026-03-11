@@ -42,8 +42,6 @@ export default function HODDashboard() {
   });
 
   // ── QR GENERATION STATE ──
-  const [qrSectionId, setQrSectionId] = useState('');
-  const [qrDuration, setQrDuration]   = useState(10);
   const [qrImage, setQrImage]         = useState<string | null>(null);
   const [sessionId, setSessionId]     = useState<string | null>(null);
   const [activeSession, setActive]    = useState(false);
